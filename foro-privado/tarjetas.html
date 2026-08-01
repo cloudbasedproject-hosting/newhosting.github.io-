@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuestro Rincón Visual</title>
+    <style>
+        /* Variables de color personalizables */
+        :root {
+            --color-fondo: #f9f6f0;
+            --color-tarjeta: #ffffff;
+            --color-principal: #ff6b6b;
+            --color-texto: #4a4a4a;
+            --color-borde: #e0e0e0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--color-fondo);
+            color: var(--color-texto);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: var(--color-principal);
+            margin-bottom: 5px;
+        }
+
+        /* Formulario para publicar */
+        .publicador {
+            background-color: var(--color-tarjeta);
+            border: 1px solid var(--color-borde);
+            border-radius: 12px;
+            padding: 20px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 40px;
+        }
+
+        .publicador textarea {
+            width: 100%;
+            height: 80px;
+            border: 1px solid var(--color-borde);
+            border-radius: 8px;
+            padding: 10px;
+            resize: none;
+            box-sizing: border-box;
+            font-family: inherit;
+            margin-bottom: 15px;
+        }
+
+        .controles-publicador {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .boton-adjuntar {
+            background-color: #eee;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .boton-adjuntar:hover {
+            background-color: #e0e0e0;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .boton-enviar {
+            background-color: var(--color-principal);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .boton-enviar:hover {
+            opacity: 0.9;
+        }
+
+        /* Vista previa del archivo seleccionado */
+        #vista-previa-nombre {
+            font-size: 12px;
+            color: #777;
+            margin-top: 5px;
+            display: block;
+        }
+
+        /* Feed del Foro */
+        .foro-feed {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Tarjetas de publicación */
+        .publicacion {
+            background-color: var(--color-tarjeta);
+            border: 1px solid var(--color-borde);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .meta-publicacion {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 10px;
+        }
+
+        .texto-publicacion {
+            font-size: 16px;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .archivo-publicacion img {
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid var(--color-borde);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Nuestro Rincón 📸</h1>
+        <p>Un espacio privado para nuestras fotos y recuerdos</p>
+    </header>
+
+    <!-- Zona para crear nueva publicación -->
+    <div class="publicador">
+        <textarea id="texto-nota" placeholder="Escribe un mensaje o dedicatoria..."></textarea>
+        
+        <div class="controles-publicador">
+            <label class="boton-adjuntar">
+                📁 Seleccionar Foto
+                <input type="file" id="input-archivo" accept="image/*">
+            </label>
+            <button class="boton-enviar" onclick="crearPublicacion()">Publicar</button>
+        </div>
+        <span id="vista-previa-nombre"></span>
+    </div>
+
+    <!-- Contenedor del foro donde aparecen los posts -->
+    <div class="foro-feed" id="foro-feed">
+        
+        <!-- Ejemplo de publicación estática -->
+        <div class="publicacion">
+            <div class="meta-publicacion">Publicado hoy por Alguien Especial</div>
+            <div class="texto-publicacion">¡Bienvenidos a nuestro foro! Sube una foto para empezar.</div>
+        </div>
+
+    </div>
+
+    <script>
+        const inputArchivo = document.getElementById('input-archivo');
+        const vistaPreviaNombre = document.getElementById('vista-previa-nombre');
+        let urlImagenTemporal = "";
+
+        // Mostrar el nombre del archivo seleccionado
+        inputArchivo.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                vistaPreviaNombre.textContent = `Archivo listo: ${this.files[0].name}`;
+                // Crea una URL local para poder mostrar la imagen de inmediato
+                urlImagenTemporal = URL.createObjectURL(this.files[0]);
+            }
+        } );
+
+        // Función para agregar el post al foro
+        function crearPublicacion() {
+            const texto = document.getElementById('texto-nota').value;
+            const feed = document.getElementById('foro-feed');
+
+            if (!texto && !urlImagenTemporal) {
+                alert("Por favor, escribe algo o selecciona una foto.");
+                return;
+            }
+
+            // Crear la estructura de la tarjeta
+            const nuevaPublicacion = document.createElement('div');
+            nuevaPublicacion.className = 'publicacion';
+
+            let contenidoArchivo = '';
+            if (urlImagenTemporal) {
+                contenidoArchivo = `<div class="archivo-publicacion"><img src="${urlImagenTemporal}" alt="Imagen del post"></div>`;
+            }
+
+            nuevaPublicacion.innerHTML = `
+                <div class="meta-publicacion">Publicado justo ahora</div>
+                <div class="texto-publicacion">${texto}</div>
+                ${contenidoArchivo}
+            `;
+
+            // Insertar al principio del foro
+            feed.insertBefore(nuevaPublicacion, feed.firstChild);
+
+            // Limpiar el formulario
+            document.getElementById('texto-nota').value = '';
+            inputArchivo.value = '';
+            vistaPreviaNombre.textContent = '';
+            urlImagenTemporal = "";
+        }
+    </script>
+
+</body>
+</html>
