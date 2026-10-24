@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Herramientas</title>
+    <!-- Iconos de Lucide para un aspecto moderno -->
+    <script src="https://unpkg.com"></script>
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: rgba(255, 255, 255, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -0.05em;
+            background: linear-gradient(to right, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 1200px;
+            padding: 0 1rem;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        .tool-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            text-align: center;
+            backdrop-filter: blur(12px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            color: inherit;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+        }
+
+        .tool-card:hover::before {
+            opacity: 1;
+        }
+
+        .icon-wrapper {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.25rem;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .tool-card:hover .icon-wrapper {
+            transform: scale(1.1) rotate(3deg);
+        }
+
+        .tool-name {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        .tool-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* Paleta de colores degradados interactivos para cada botón */
+        .btn-avatar { background: linear-gradient(135deg, #ec4899, #f43f5e); }
+        .btn-buscador { background: linear-gradient(135deg, #06b6d4, #0ea5e9); }
+        .btn-tv { background: linear-gradient(135deg, #e11d48, #9333ea); }
+        .btn-cronometro { background: linear-gradient(135deg, #f59e0b, #eab308); }
+        .btn-ias { background: linear-gradient(135deg, #10b981, #059669); }
+        .btn-iptv { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+        .btn-android { background: linear-gradient(135deg, #22c55e, #15803d); }
+        .btn-mobile { background: linear-gradient(135deg, #14b8a6, #0d9488); }
+        .btn-music { background: linear-gradient(135deg, #a855f7, #7c3aed); }
+        .btn-poppad { background: linear-gradient(135deg, #f97316, #ea580c); }
+        .btn-radio { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+        .btn-talking { background: linear-gradient(135deg, #64748b, #475569); }
+
+        /* Animaciones de entrada */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsivo para pantallas pequeñas */
+        @media (max-width: 640px) {
+            .grid-container {
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+                gap: 1rem;
+            }
+            header h1 { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Panel de Herramientas</h1>
+        <p>Selecciona una opción para abrir el sitio web en una pestaña nueva</p>
+    </header>
+
+    <div class="grid-container">
+
+        <!-- Modifica el atributo 'href' de cada enlace con la URL real que necesites -->
+        
+        <a href="https://cloudbasedproject-hosting.github.io/newhosting.github.io-/np/avatar.html" target="_blank" class="tool-card">
+            <div class="icon-wrapper btn-avatar"><i data-lucide="user"></i></div>
+            <div class="tool-name">Avatar</div>
+            <div class="tool-desc">Avatar Animado</div>
+        </a>
+
+        <a href="https://cloudbasedproject-hosting.github.io/newhosting.github.io-/np/buscadorP.html" target="_blank" class="tool-card">
+            <div class="icon-wrapper btn-buscador"><i data-lucide="search"></i></div>
+            <div class="tool-name">BuscadorP</div>
+            <div class="tool-desc">Motor de búsqueda personalizado.</div>
+        </a>
+
+        <a href="https://cloudbasedproject-hosting.github.io/newhosting.github.io-/np/canalestv.html" target="_blank" class="tool-card">
+            <div class="icon-wrapper btn-tv"><i data-lucide="tv"></i></div>
+            <div class="tool-name">Canales TV</div>
+            <div class="tool-desc">Transmisiones de televisión en vivo.</div>
+        </a>
+
+        <a href="https://cloudbasedproject-hosting.github.io/newhosting.github.io-/np/cronometro.html" target="_blank" class="tool-card">
+            <div class="icon-wrapper btn-cronometro"><i data-lucide="timer"></i></div>
+            <div class="tool-name">Cronómetro</div>
+            <div class="tool-desc">Temporizador y contador de tiempo preciso.</div>
+        </a>
+
+        <a href="https://cloudbasedproject-hosting.github.io/newhosting.github.io-/np/ias-gratis.html" target="_blank" class="tool-card">
+            <div class="icon-wrapper btn-ias"><i data-lucide="cpu"></i></div>
+            <div class="tool-name">IAs Gratis</div>
+            <div class="tool-desc">Acceso a herramientas de Inteligencia Artificial.</div>
+        </a>
+
+        <a href="https://cloudbasedproject-hosting.github.io/newhosting.github.io-/np/Indexiptv.html" target="_blank" class="tool-card">
+            <div class="icon-wrapper btn-iptv"><i data-lucide="list-video"></i></div>
+            <div class="tool-name">Index IPTV</div>
+            <div class="tool-desc">Listas y enlaces de reproducción IPTV.</div>
+        </a>
+
+        <a href="https://cloudbasedproject-hosting.github.io/newhosting.github.io-/np/index-Android.html" target="_blank" class="tool-card">
+            <div class="icon-wrapper btn-android"><i data-lucide="smartphone"></i></div>
+            <div class="tool-name">Index Android</div>
+            <div class="tool-desc">Recursos y aplicaciones para Android.</div>
+        </a>
+
+        <a href="https://cloudbasedproject-hosting.github.io/newhosting.github.io-/np/mobileweb.html" target="_blank" class="tool-card">
+            <div class="icon-wrapper btn-mobile"><i data-lucide="tablet-smartphone"></i></div>
+            <div class="tool-name">Mobile Web</div>
+            <div class="tool-desc">Versión y herramientas de optimización móvil.</div>
+        </a>
+
+        <a href="https://cloudbasedproject-hosting.github.io/newhosting.github.io-/np/musicindex.html" target="_blank" class="tool-card">
+            <div class="icon-wrapper btn-music"><i data-lucide="music"></i></div>
+            <div class="tool-name">Music Index</div>
+            <div class="tool-desc">Biblioteca musical y streaming de audio.</div>
+        </a>
+
+        <a href="https://cloudbasedproject-hosting.github.io/newhosting.github.io-/np/poppadloop.html" target="_blank" class="tool-card">
+            <div class="icon-wrapper btn-poppad"><i data-lucide="infinity"></i></div>
+            <div class="tool-name">PopPad Loop</div>
+            <div class="tool-desc">Secuenciador y loops interactivos.</div>
+        </a>
+
+        <a href="https://cloudbasedproject-hosting.github.io/newhosting.github.io-/np/radioweb.html" target="_blank" class="tool-card">
+            <div class="icon-wrapper btn-radio"><i data-lucide="radio"></i></div>
+            <div class="tool-name">Radio Web</div>
+            <div class="tool-desc">Estaciones de radio online de todo el mundo.</div>
+        </a>
+
+        <a href="https://cloudbasedproject-hosting.github.io/newhosting.github.io-/np/tooltalking.html" target="_blank" class="tool-card">
+            <div class="icon-wrapper btn-talking"><i data-lucide="message-square-quote"></i></div>
+            <div class="tool-name">Tool Talking</div>
+            <div class="tool-desc">Herramienta de chat, voz o comunicación.</div>
+        </a>
+
+    </div>
+
+    <script>
+        // Inicializa los iconos de Lucide automáticamente
+        lucide.createIcons();
+    </script>
+</body>
+</html>
