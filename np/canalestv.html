@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Panel de Streaming Personal</title>
+    <style>
+        :root {
+            --primary-color: #ff4757;
+            --bg-overlay: rgba(0, 0, 0, 0.65);
+            --card-bg: rgba(255, 255, 255, 0.1);
+            --card-hover: rgba(255, 255, 255, 0.2);
+            --text-color: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-image: url('image_-1UUcb.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: var(--text-color);
+            transition: background-image 0.3s ease;
+        }
+
+        /* Capa oscura para mejorar legibilidad */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-overlay);
+            z-index: 1;
+        }
+
+        .content {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn {
+            background: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .btn:hover {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        /* Ocultar input de archivo estándar */
+        #bg-input {
+            display: none;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 200px;
+        }
+
+        .card:hover {
+            background: var(--card-hover);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .platform-name {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+
+        .url-input {
+            width: 100%;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            color: white;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+
+        .url-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .action-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.2s;
+        }
+
+        .action-btn:hover {
+            background: #ff6b81;
+        }
+
+        .action-btn.disabled {
+            background: #57606f;
+            cursor: not-allowed;
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        /* Sección Oculta / Secreta */
+        .secret-trigger {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            width: 15px;
+            height: 15px;
+            opacity: 0.05;
+            cursor: default;
+            z-index: 10;
+        }
+
+        .secret-trigger:hover {
+            opacity: 0.2;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(8px);
+        }
+
+        .modal-content {
+            background: #1e272e;
+            padding: 30px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+        }
+
+        .modal-header {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #ff4757;
+            text-align: center;
+        }
+
+        .secret-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .secret-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .secret-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .close-modal {
+            margin-top: 20px;
+            background: #57606f;
+            width: 100%;
+        }
+
+        .close-modal:hover {
+            background: #747d8c;
+        }
+
+        footer {
+            margin-top: auto;
+            text-align: center;
+            padding-top: 20px;
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.4);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="overlay"></div>
+
+    <div class="content">
+        <header>
+            <h1>Mis Canales TV</h1>
+            <div class="controls">
+                <label for="bg-input" class="btn">🌄 Cambiar Fondo</label>
+                <input type="file" id="bg-input" accept="image/*">
+            </div>
+        </header>
+
+        <main class="grid" id="platforms-container">
+            <!-- Las tarjetas se generarán dinámicamente -->
+        </main>
+
+        <footer>
+            Panel de Enlaces Multimedia Personal © 2026
+        </footer>
+    </div>
+
+    <!-- Gatillo invisible en la esquina inferior derecha (Doble clic abre el panel secreto) -->
+    <div class="secret-trigger" id="secret-gate" title=""></div>
+
+    <!-- Modal Secreto -->
+    <div class="modal" id="secret-modal">
+        <div class="modal-content">
+            <div class="modal-header">🔒 Panel Restringido</div>
+            <div class="secret-grid">
+                <div class="secret-item">
+                    <span class="secret-name">XVideos</span>
+                    <a href="https://www.xvideos.com" target="_blank" class="btn" style="background: #ff9900; border: none; color: black; font-weight: bold;">Acceder</a>
+                </div>
+                <div class="secret-item">
+                    <span class="secret-name">XMaster</span>
+                    <a href="https://www.xvideos.com/tags/master" target="_blank" class="btn" style="background: #ff9900; border: none; color: black; font-weight: bold;">Acceder</a>
+                </div>
+            </div>
+            <button class="btn close-modal" id="close-modal-btn">Cerrar Panel</button>
+        </div>
+    </div>
+
+    <script>
+        // Listado de plataformas públicas requeridas
+        const platforms = ['Canela TV', 'Free TV', 'Pluto TV', 'Runtime TV', 'ViX TV'];
+
+        const container = document.getElementById('platforms-container');
+
+        // Inicializar tarjetas y cargar URLs guardadas de localStorage
+        platforms.forEach(name => {
+            const safeKey = name.replace(/\s+/g, '_').toLowerCase() + '_url';
+            const savedUrl = localStorage.getItem(safeKey) || '';
+
+            const card = document.createElement('div');
+            card.className = 'card';
+
+            card.innerHTML = `
+                <div class="platform-name">${name}</div>
+                <input type="text" class="url-input" id="input-${safeKey}" placeholder="Pega tu URL aquí..." value="${savedUrl}">
+                <a href="${savedUrl}" target="_blank" id="btn-${safeKey}" class="action-btn ${savedUrl ? '' : 'disabled'}">Ver Canal</a>
+            `;
+
+            container.appendChild(card);
+
+            // Escuchar cambios en el input para guardar y activar botón instantáneamente
+            const input = card.querySelector(`#input-${safeKey}`);
+            const btn = card.querySelector(`#btn-${safeKey}`);
+
+            input.addEventListener('input', (e) => {
+                const value = e.target.value.trim();
+                localStorage.setItem(safeKey, value);
+                if (value) {
+                    btn.href = value;
+                    btn.classList.remove('disabled');
+                } else {
+                    btn.removeAttribute('href');
+                    btn.classList.add('disabled');
+                }
+            });
+        });
+
+        // Cambiar Imagen de Fondo y mantenerla en localStorage
+        const bgInput = document.getElementById('bg-input');
+        
+        // Cargar fondo guardado si existe
+        const savedBg = localStorage.getItem('custom_bg');
+        if (savedBg) {
+            document.body.style.backgroundImage = `url('${savedBg}')`;
+        }
+
+        bgInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const base64Image = event.target.result;
+                    document.body.style.backgroundImage = `url('${base64Image}')`;
+                    try {
+                        localStorage.setItem('custom_bg', base64Image);
+                    } catch (error) {
+                        console.log('La imagen es demasiado grande para guardarse permanentemente en el navegador, pero se aplicará temporalmente.');
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Lógica del Panel Oculto / Secreto
+        const secretGate = document.getElementById('secret-gate');
+        const secretModal = document.getElementById('secret-modal');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+
+        // Se activa con un DOBLE CLIC sobre el pixel invisible en la esquina inferior derecha
+        secretGate.addEventListener('dblclick', () => {
+            secretModal.style.display = 'flex';
+        });
+
+        closeModalBtn.addEventListener('click', () => {
+            secretModal.style.display = 'none';
+        });
+
+        // Cerrar haciendo clic fuera del contenido del modal
+        window.addEventListener('click', (e) => {
+            if (e.target === secretModal) {
+                secretModal.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

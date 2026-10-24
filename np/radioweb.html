@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Radio Web en Vivo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1e1e24, #111116);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .radio-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2.5rem;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+        }
+
+        .station-logo {
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(45deg, #ff416c, #ff4b2b);
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3.5rem;
+            box-shadow: 0 8px 25px rgba(255, 65, 108, 0.4);
+            animation: pulse 3s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.04); box-shadow: 0 8px 35px rgba(255, 65, 108, 0.6); }
+        }
+
+        .station-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.5px;
+        }
+
+        .live-badge {
+            background: #ff003c;
+            color: white;
+            padding: 0.2rem 0.8rem;
+            font-size: 0.75rem;
+            font-weight: bold;
+            border-radius: 50px;
+            display: inline-block;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 0 10px rgba(255, 0, 60, 0.5);
+        }
+
+        /* Reproductor nativo estilizado */
+        audio {
+            width: 100%;
+            margin-top: 1rem;
+            border-radius: 30px;
+            outline: none;
+        }
+
+        /* Ajuste visual para navegadores modernos */
+        audio::-webkit-media-controls-enclosure {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 30px;
+        }
+
+        .footer-text {
+            margin-top: 2rem;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="radio-container">
+        <!-- Logotipo temporal (Emoji o puedes usar una etiqueta <img>) -->
+        <div class="station-logo">📻</div>
+        
+        <h1 class="station-name">Mi Radio Web</h1>
+        <div class="live-badge">En Vivo</div>
+
+        <!-- REPRODUCTOR HTML5 -->
+        <!-- Reemplaza el 'src' con tu enlace de transmisión real -->
+        <audio controls preload="none">
+            <source src="https://radios.yanapak.org/radio_trama" type="audio/mpeg">
+            Tu navegador no soporta el elemento de audio.
+        </audio>
+
+        <p class="footer-text">&copy; 2026 Tu Estación de Radio Digital</p>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Texto a Voz Avanzado</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            box-sizing: border-box;
+        }
+        h1 {
+            color: #333333;
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            resize: none;
+            font-size: 16px;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        textarea:focus {
+            border-color: #007bff;
+        }
+        .controls {
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        label {
+            font-size: 14px;
+            color: #555555;
+            font-weight: 500;
+        }
+        select, input[type="range"] {
+            width: 100%;
+            box-sizing: border-box;
+        }
+        select {
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #cccccc;
+            font-size: 14px;
+        }
+        .range-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .range-container span {
+            font-size: 14px;
+            color: #666666;
+            min-width: 35px;
+            text-align: right;
+        }
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+        }
+        button {
+            flex: 1;
+            padding: 12px;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-weight: bold;
+        }
+        .btn-play {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-play:hover {
+            background-color: #218838;
+        }
+        .btn-stop {
+            background-color: #dc3545;
+            color: white;
+        }
+        .btn-stop:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Texto a Voz</h1>
+    <textarea id="text-to-read" placeholder="Escribe o pega tu texto aquí..."></textarea>
+    
+    <div class="controls">
+        <div class="control-group">
+            <label for="voice-select">Selecciona un idioma/voz:</label>
+            <select id="voice-select">
+                <option value="">Cargando voces...</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label for="rate">Velocidad:</label>
+            <div class="range-container">
+                <input type="range" id="rate" min="0.5" max="2" value="1" step="0.1">
+                <span id="rate-value">1.0x</span>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label for="volume">Volumen:</label>
+            <div class="range-container">
+                <input type="range" id="volume" min="0" max="1" value="1" step="0.1">
+                <span id="volume-value">100%</span>
+            </div>
+        </div>
+        
+        <div class="buttons">
+            <button class="btn-play" id="btn-speak">Escuchar</button>
+            <button class="btn-stop" id="btn-stop">Detener</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const textarea = document.getElementById('text-to-read');
+    const voiceSelect = document.getElementById('voice-select');
+    const rateInput = document.getElementById('rate');
+    const rateValue = document.getElementById('rate-value');
+    const volumeInput = document.getElementById('volume');
+    const volumeValue = document.getElementById('volume-value');
+    const btnSpeak = document.getElementById('btn-speak');
+    const btnStop = document.getElementById('btn-stop');
+
+    let synth = window.speechSynthesis;
+    let voices = [];
+
+    // Cargar las voces del sistema
+    function loadVoices() {
+        voices = synth.getVoices();
+        voiceSelect.innerHTML = '';
+        
+        voices.forEach((voice, index) => {
+            const option = document.createElement('option');
+            option.value = index;
+            option.textContent = `${voice.name} (${voice.lang})`;
+            
+            if (voice.lang.includes('es')) {
+                option.selected = true;
+            }
+            voiceSelect.appendChild(option);
+        });
+
+        if (voices.length === 0) {
+            const option = document.createElement('option');
+            option.textContent = 'No se encontraron voces';
+            voiceSelect.appendChild(option);
+        }
+    }
+
+    if (synth.onvoiceschanged !== undefined) {
+        synth.onvoiceschanged = loadVoices;
+    } else {
+        loadVoices();
+    }
+
+    // Actualizar los indicadores de texto al mover los sliders
+    rateInput.addEventListener('input', () => {
+        rateValue.textContent = `${parseFloat(rateInput.value).toFixed(1)}x`;
+    });
+
+    volumeInput.addEventListener('input', () => {
+        volumeValue.textContent = `${Math.round(volumeInput.value * 100)}%`;
+    });
+
+    // Acción para reproducir el texto
+    btnSpeak.addEventListener('click', () => {
+        if (synth.speaking) {
+            synth.cancel(); 
+        }
+
+        if (textarea.value.trim() !== '') {
+            const utterance = new SpeechSynthesisUtterance(textarea.value);
+            
+            // Asignar voz
+            const selectedVoiceIndex = voiceSelect.value;
+            if (selectedVoiceIndex !== "") {
+                utterance.voice = voices[selectedVoiceIndex];
+            }
+
+            // Asignar los nuevos valores de velocidad y volumen
+            utterance.rate = parseFloat(rateInput.value);
+            utterance.volume = parseFloat(volumeInput.value);
+
+            synth.speak(utterance);
+        }
+    });
+
+    // Acción para detener la lectura
+    btnStop.addEventListener('click', () => {
+        if (synth.speaking) {
+            synth.cancel();
+        }
+    });
+</script>
+
+</body>
+</html>

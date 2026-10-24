@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Avatar Animado</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background: linear-gradient(135deg, #1e1e2f, #111119);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            font-family: sans-serif;
+        }
+        /* Contenedor principal con animación de flotado */
+        .avatar-container {
+            position: relative;
+            width: 200px;
+            height: 250px;
+            animation: float 4s ease-in-out infinite;
+        }
+        /* Cabeza del Avatar */
+        .head {
+            position: absolute;
+            width: 180px;
+            height: 160px;
+            background: #4a90e2;
+            border-radius: 50px;
+            left: 10px;
+            top: 20px;
+            box-shadow: inset -10px -10px 0px rgba(0,0,0,0.1), 0 10px 25px rgba(0,0,0,0.3);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0 25px;
+        }
+        /* Ojos */
+        .eye-socket {
+            width: 45px;
+            height: 55px;
+            background: #ffffff;
+            border-radius: 50%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            animation: blink 5s infinite;
+        }
+        .pupil {
+            width: 20px;
+            height: 20px;
+            background: #0f172a;
+            border-radius: 50%;
+            position: absolute;
+            transition: transform 0.1s ease-out;
+        }
+        /* Antena */
+        .antenna {
+            position: absolute;
+            width: 8px;
+            height: 35px;
+            background: #357abd;
+            top: -15px;
+            left: 96px;
+        }
+        .antenna-tip {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #ff4757;
+            border-radius: 50%;
+            top: -30px;
+            left: 90px;
+            box-shadow: 0 0 15px #ff4757;
+            animation: pulse 2s infinite;
+        }
+        /* Sonrisa */
+        .smile {
+            position: absolute;
+            bottom: 30px;
+            left: 75px;
+            width: 50px;
+            height: 25px;
+            border-bottom: 6px solid #1e293b;
+            border-radius: 0 0 50px 50px;
+        }
+        /* Animaciones */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        @keyframes blink {
+            0%, 90%, 100% { transform: scaleY(1); }
+            95% { transform: scaleY(0); }
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+        }
+        .instruction {
+            position: absolute;
+            bottom: 40px;
+            color: rgba(255,255,255,0.6);
+            font-size: 14px;
+            letter-spacing: 1px;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="avatar-container">
+        <div class="antenna"></div>
+        <div class="antenna-tip"></div>
+        <div class="head">
+            <div class="eye-socket">
+                <div class="pupil"></div>
+            </div>
+            <div class="eye-socket">
+                <div class="pupil"></div>
+            </div>
+            <div class="smile"></div>
+        </div>
+    </div>
+
+    <div class="instruction">Mueve el cursor o toca la pantalla</div>
+
+    <script>
+        const pupils = document.querySelectorAll('.pupil');
+
+        function moveEyes(event) {
+            let clientX, clientY;
+            
+            // Soporte para PC (Mouse) y Android (Touch)
+            if (event.touches) {
+                clientX = event.touches[0].clientX;
+                clientY = event.touches[0].clientY;
+            } else {
+                clientX = event.clientX;
+                clientY = event.clientY;
+            }
+
+            pupils.forEach(pupil => {
+                // Obtener el centro de cada ojo
+                const rect = pupil.getBoundingClientRect();
+                const eyeX = rect.left + rect.width / 2;
+                const eyeY = rect.top + rect.height / 2;
+                
+                // Calcular el ángulo entre el ojo y el cursor/dedo
+                const angle = Math.atan2(clientY - eyeY, clientX - eyeX);
+                
+                // Limitar el movimiento de la pupila dentro del ojo (máximo 12 píxeles)
+                const distance = 12; 
+                const x = Math.cos(angle) * distance;
+                const y = Math.sin(angle) * distance;
+                
+                pupil.style.transform = `translate(${x}px, ${y}px)`;
+            });
+        }
+
+        // Escuchar eventos en Windows y Android
+        window.addEventListener('mousemove', moveEyes);
+        window.addEventListener('touchmove', moveEyes);
+    </script>
+</body>
+</html>

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reproductor IPTV M3U Moderno</title>
+    <!-- HLS.js para soportar streaming .m3u8 en la mayoría de navegadores -->
+    <script src="https://jsdelivr.net"></script>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --panel-bg: #1e1e1e;
+            --accent-color: #00adb5;
+            --text-color: #eeeeee;
+            --text-muted: #888888;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            hight: 100vh;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        header {
+            background-color: var(--panel-bg);
+            padding: 15px 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            border-bottom: 2px solid #2d2d2d;
+        }
+
+        .logo {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        .input-group {
+            display: flex;
+            flex-grow: 1;
+            gap: 10px;
+            max-width: 600px;
+        }
+
+        input[type="text"] {
+            flex-grow: 1;
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid #444;
+            background-color: #333;
+            color: #fff;
+        }
+
+        button {
+            background-color: var(--accent-color);
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background-color: #007a80;
+        }
+
+        .main-container {
+            display: flex;
+            flex-grow: 1;
+            overflow: hidden;
+        }
+
+        .player-section {
+            flex-grow: 3;
+            background-color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .playlist-section {
+            flex-grow: 1;
+            width: 350px;
+            max-width: 400px;
+            background-color: var(--panel-bg);
+            border-left: 1px solid #2d2d2d;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .search-box {
+            padding: 10px;
+            border-bottom: 1px solid #2d2d2d;
+        }
+
+        .search-box input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #444;
+            background-color: #2b2b2b;
+            color: #fff;
+        }
+
+        .channel-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .channel-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #2d2d2d;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.2s;
+        }
+
+        .channel-item:hover {
+            background-color: #2a2a2a;
+        }
+
+        .channel-item.active {
+            background-color: #254b4e;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .channel-logo {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+            background-color: #121212;
+            border-radius: 4px;
+        }
+
+        .channel-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .channel-name {
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .channel-group {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+            }
+            .playlist-section {
+                width: 100%;
+                max-width: 100%;
+                height: 40vh;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">IPTV Player</div>
+        <div class="input-group">
+            <input type="text" id="m3u-url" placeholder="Pega aquí la URL de tu lista .m3u o .m3u8">
+            <button id="load-btn">Cargar Lista</button>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <!-- Sección del Reproductor de Video -->
+        <div class="player-section">
+            <video id="video-player" controls autoplay></video>
+        </div>
+
+        <!-- Sección de la Lista de Canales -->
+        <div class="playlist-section">
+            <div class="search-box">
+                <input type="text" id="search-channel" placeholder="Buscar canal...">
+            </div>
+            <ul class="channel-list" id="channel-container">
+                <!-- Los canales se cargarán aquí de forma dinámica -->
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const video = document.getElementById('video-player');
+        const m3uUrlInput = document.getElementById('m3u-url');
+        const loadBtn = document.getElementById('load-btn');
+        const channelContainer = document.getElementById('channel-container');
+        const searchInput = document.getElementById('search-channel');
+
+        let allChannels = [];
+        let hls = null;
+
+        // Inicializar eventos
+        loadBtn.addEventListener('click', loadRemotePlaylist);
+        searchInput.addEventListener('input', filterChannels);
+
+        // Cargar lista remota
+        async function loadRemotePlaylist() {
+            const url = m3uUrlInput.value.trim();
+            if (!url) {
+                alert('Por favor, introduce una URL válida.');
+                return;
+            }
+
+            loadBtn.innerText = 'Cargando...';
+            loadBtn.disabled = true;
+
+            try {
+                // Alerta CORS: Algunas URL de IPTV bloquean peticiones desde navegadores locales
+                // Si falla, se puede usar un proxy CORS gratuito temporal para desarrollo
+                let targetUrl = url;
+                
+                const response = await fetch(targetUrl);
+                if (!response.ok) throw new Error('No se pudo obtener el archivo.');
+                
+                const text = await response.text();
+                parseM3U(text);
+            } catch (error) {
+                console.error(error);
+                alert('Error al cargar la lista. Esto suele deberse a restricciones CORS del proveedor o una URL incorrecta.');
+            } finally {
+                loadBtn.innerText = 'Cargar Lista';
+                loadBtn.disabled = false;
+            }
+        }
+
+        // Analizador (Parser) básico de listas M3U
+        function parseM3U(data) {
+            allChannels = [];
+            const lines = data.split('\n');
+            let currentChannel = null;
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+
+                if (line.startsWith('#EXTINF:')) {
+                    currentChannel = {};
+                    
+                    // Extraer nombre del canal
+                    const nameIndex = line.lastIndexOf(',');
+                    if (nameIndex !== -1) {
+                        currentChannel.name = line.substring(nameIndex + 1).trim();
+                    }
+
+                    // Extraer logo (tvg-logo)
+                    const logoMatch = line.match(/tvg-logo="([^"]+)"/);
+                    if (logoMatch) currentChannel.logo = logoMatch[1];
+
+                    // Extraer grupo/categoría (group-title)
+                    const groupMatch = line.match(/group-title="([^"]+)"/);
+                    if (groupMatch) currentChannel.group = groupMatch[1];
+                } else if (line && !line.startsWith('#') && currentChannel) {
+                    currentChannel.url = line;
+                    allChannels.push(currentChannel);
+                    currentChannel = null;
+                }
+            }
+
+            renderChannels(allChannels);
+        }
+
+        // Renderizar canales en la barra lateral
+        function renderChannels(channels) {
+            channelContainer.innerHTML = '';
+            
+            if (channels.length === 0) {
+                channelContainer.innerHTML = '<li style="padding:15px; text-align:center; color:#888;">No se encontraron canales</li>';
+                return;
+            }
+
+            channels.forEach((channel, index) => {
+                const li = document.createElement('li');
+                li.className = 'channel-item';
+                
+                const fallbackLogo = 'https://placeholder.com';
+                const logoSrc = channel.logo || fallbackLogo;
+
+                li.innerHTML = `
+                    <img class="channel-logo" src="${logoSrc}" onerror="this.src='${fallbackLogo}'" alt="logo">
+                    <div class="channel-info">
+                        <span class="channel-name">${channel.name || 'Canal Desconocido'}</span>
+                        <span class="channel-group">${channel.group || 'General'}</span>
+                    </div>
+                `;
+
+                li.addEventListener('click', () => {
+                    // Remover estado activo previo
+                    document.querySelectorAll('.channel-item').forEach(el => el.classList.remove('active'));

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disco Music Player</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #050505;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* --- Fondo Animado Tipo Antro / Discoteca --- */
+        .disco-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        /* Luces de colores giratorias y parpadeantes */
+        .light {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.5;
+            mix-blend-mode: screen;
+            animation: moveLight 8s infinite alternate ease-in-out;
+        }
+
+        .light-magenta {
+            background: radial-gradient(circle, rgba(255,0,128,1) 0%, rgba(0,0,0,0) 70%);
+            top: -20%;
+            left: -10%;
+            animation-duration: 6s;
+        }
+
+        .light-cyan {
+            background: radial-gradient(circle, rgba(0,255,242,1) 0%, rgba(0,0,0,0) 70%);
+            bottom: -20%;
+            right: -10%;
+            animation-duration: 9s;
+        }
+
+        .light-purple {
+            background: radial-gradient(circle, rgba(138,43,226,1) 0%, rgba(0,0,0,0) 70%);
+            top: 40%;
+            left: 30%;
+            animation-duration: 7s;
+        }
+
+        @keyframes moveLight {
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 0.4; }
+            50% { transform: translate(80px, 50px) scale(1.2) rotate(180deg); opacity: 0.7; }
+            100% { transform: translate(-40px, -80px) scale(0.9) rotate(360deg); opacity: 0.4; }
+        }
+
+        /* Destellos estroboscópicos de fondo */
+        .strobe-overlay {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.03);
+            z-index: 2;
+            animation: strobe 0.4s infinite;
+            pointer-events: none;
+        }
+
+        @keyframes strobe {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+
+        /* --- Contenedor del Reproductor --- */
+        .player-container {
+            position: relative;
+            z-index: 10;
+            background: rgba(20, 20, 20, 0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7), 
+                        0 0 20px rgba(0, 255, 242, 0.2);
+            text-align: center;
+        }
+
+        h2 {
+            color: #fff;
+            margin-bottom: 20px;
+            font-size: 1.6rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(255, 0, 128, 0.6);
+        }
+
+        /* --- Formularios y Entradas --- */
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        label {
+            color: #ccc;
+            font-size: 0.85rem;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: #fff;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: #00fff2;
+            box-shadow: 0 0 8px rgba(0, 255, 242, 0.5);
+        }
+
+        /* Estilo para el input file */
+        .file-label {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background: rgba(255, 0, 128, 0.2);
+            border: 1px dashed rgba(255, 0, 128, 0.6);
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            text-align: center;
+            transition: 0.3s;
+        }
+
+        .file-label:hover {
+            background: rgba(255, 0, 128, 0.4);
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .divider {
+            color: #666;
+            margin: 10px 0;
+            font-size: 0.9rem;
+        }
+
+        /* --- Controles del Audio --- */
+        audio {
+            width: 100%;
+            margin-top: 15px;
+            border-radius: 30px;
+            outline: none;
+        }
+
+        /* Nombre de la pista activa */
+        .track-title {
+            color: #00fff2;
+            font-size: 0.95rem;
+            margin-top: 15px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Fondo de Antro -->
+    <div class="disco-background">
+        <div class="light light-magenta"></div>
+        <div class="light light-cyan"></div>
+        <div class="light light-purple"></div>
+        <div class="strobe-overlay"></div>
+    </div>
+
+    <!-- Interfaz del Reproductor -->
+    <div class="player-container">
+        <h2>Disco Player</h2>
+
+        <!-- Opción 1: Cargar archivo local -->
+        <div class="input-group">
+            <label>Subir archivo de audio local (MP3):</label>
+            <label for="file-upload" class="file-label">Seleccionar archivo MP3</label>
+            <input type="file" id="file-upload" accept="audio/*">
+        </div>
+
+        <div class="divider">ó</div>
+
+        <!-- Opción 2: Pegar URL de internet -->
+        <div class="input-group">
+            <label>Pegar URL de música (MP3 / Stream):</label>
+            <input type="text" id="url-input" placeholder="https://ejemplo.com">
+        </div>
+
+        <!-- Track activo -->
+        <div class="track-title" id="track-name">Ninguna pista cargada</div>
+
+        <!-- Elemento de Audio Nativo HTML5 -->
+        <audio id="audio-player" controls></audio>
+    </div>
+
+    <script>
+        const audioPlayer = document.getElementById('audio-player');
+        const fileUpload = document.getElementById('file-upload');
+        const urlInput = document.getElementById('url-input');
+        const trackName = document.getElementById('track-name');
+
+        // Manejar archivo local MP3
+        fileUpload.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const fileURL = URL.createObjectURL(file);
+                audioPlayer.src = fileURL;
+                trackName.textContent = `🎵 ${file.name}`;
+                urlInput.value = ''; // Limpiar el input de URL
+                audioPlayer.play();
+            }
+        });
+
+        // Manejar URL de internet
+        urlInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const url = urlInput.value.trim();
+                if (url) {
+                    audioPlayer.src = url;
+                    // Extraer el final de la URL para mostrar como nombre
+                    const name = url.substring(url.lastIndexOf('/') + 1) || "Streaming Link";
+                    trackName.textContent = `🌐 ${decodeURIComponent(name)}`;
+                    fileUpload.value = ''; // Limpiar el input de archivo
+                    audioPlayer.play();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

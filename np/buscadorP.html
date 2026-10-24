@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Panel de Búsqueda Personalizado</title>
+    <style>
+        :root {
+            --bg-default: #1e1e24;
+            --card-bg: rgba(255, 255, 255, 0.1);
+            --text-color: #ffffff;
+            --accent-color: #4f46e5;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-default);
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--text-color);
+            transition: background 0.3s ease;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1, h2 {
+            text-align: center;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        /* Paneles de Configuración */
+        .panel {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .form-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        input, select, button {
+            padding: 10px;
+            border-radius: 6px;
+            border: none;
+            outline: none;
+            font-size: 14px;
+        }
+
+        input[type="text"], input[type="url"] {
+            flex: 1;
+            min-width: 200px;
+            background: rgba(255,255,255,0.9);
+        }
+
+        button {
+            background: var(--accent-color);
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: opacity 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        /* Lista de Enlaces */
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .link-card {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            position: relative;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: transform 0.2s;
+        }
+
+        .link-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .link-card a {
+            color: #67e8f9;
+            text-decoration: none;
+            font-weight: bold;
+            display: block;
+            word-break: break-all;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            line-height: 1;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        /* Controles de Fondo */
+        .bg-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .color-picker {
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Mi Buscador Personalizado</h1>
+
+        <!-- SECCIÓN: CAMBIAR FONDO -->
+        <div class="panel">
+            <h2>Personalizar Fondo</h2>
+            <div class="bg-controls">
+                <label for="colorBg">Color Sólido:</label>
+                <input type="color" id="colorBg" class="color-picker" value="#1e1e24">
+
+                <label for="presetBg">Estilos Rápidos:</label>
+                <select id="presetBg">
+                    <option value="">-- Selecciona uno --</option>
+                    <option value="linear-gradient(135deg, #667eea 0%, #764ba2 100%)">Degradado Púrpura</option>
+                    <option value="linear-gradient(135deg, #0f2027, #203a43, #2c5364)">Fondo Cyberpunk Oscuro</option>
+                    <option value="linear-gradient(135deg, #11998e, #38ef7d)">Degradado Verde Esmeralda</option>
+                </select>
+
+                <label for="imgBg">URL de Imagen:</label>
+                <input type="url" id="imgBg" placeholder="https://ejemplo.com">
+                <button onclick="applyImageBackground()">Aplicar Imagen</button>
+            </div>
+        </div>
+
+        <!-- SECCIÓN: AÑADIR URLS DE BÚSQUEDA -->
+        <div class="panel">
+            <h2>Añadir Enlaces de Búsqueda</h2>
+            <form id="urlForm" onsubmit="addLink(event)">
+                <div class="form-group">
+                    <input type="text" id="siteName" placeholder="Nombre del Sitio (ej: Google)" required>
+                    <input type="url" id="siteUrl" placeholder="URL completa (ej: https://google.com)" required>
+                    <button type="submit">Agregar Enlace</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- SECCIÓN: GRILLA DE ENLACES -->
+        <div class="panel">
+            <h2>Mis Sitios de Búsqueda</h2>
+            <div id="linksGrid" class="links-grid">
+                <!-- Los enlaces agregados aparecerán aquí -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Gestión del Almacenamiento Local (LocalStorage) ---
+        let searchLinks = JSON.parse(localStorage.getItem('searchLinks')) || [
+            { name: 'Google', url: 'https://google.com' },
+            { name: 'Bing', url: 'https://bing.com' }
+        ];
+        let savedBackground = localStorage.getItem('customBackground') || '#1e1e24';
+
+        // Inicializar la página al cargar
+        window.onload = function() {
+            applyBackgroundStyle(savedBackground);
+            renderLinks();
+            
+            // Sincronizar el selector de color si el fondo guardado es un color hexadecimal
+            if(savedBackground.startsWith('#')) {
+                document.getElementById('colorBg').value = savedBackground;
+            }
+        };
+
+        // --- Funciones para el Fondo ---
+        function applyBackgroundStyle(styleValue) {
+            document.body.style.background = styleValue;
+            document.body.style.backgroundSize = "cover";
+            document.body.style.backgroundAttachment = "fixed";
+            localStorage.setItem('customBackground', styleValue);
+        }
+
+        // Evento: Selector de color sólido
+        document.getElementById('colorBg').addEventListener('input', (e) => {
+            applyBackgroundStyle(e.target.value);
+        });
+
+        // Evento: Menú desplegable de degradados
+        document.getElementById('presetBg').addEventListener('change', (e) => {
+            if (e.target.value) {
+                applyBackgroundStyle(e.target.value);
+            }
+        });
+
+        // Evento: Imagen desde URL de la web
+        function applyImageBackground() {
+            const urlInput = document.getElementById('imgBg').value.trim();
+            if (urlInput) {
+                const bgValue = `url('${urlInput}')`;
+                applyBackgroundStyle(bgValue);
+            } else {
+                alert("Por favor, introduce una URL de imagen válida.");
+            }
+        }
+
+        // --- Funciones para los Enlaces ---
+        function renderLinks() {
+            const grid = document.getElementById('linksGrid');
+            grid.innerHTML = '';
+
+            searchLinks.forEach((link, index) => {
+                const card = document.createElement('div');
+                card.className = 'link-card';
+                card.innerHTML = `
+                    <button class="delete-btn" onclick="deleteLink(${index})">×</button>
+                    <a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.name}</a>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function addLink(event) {
+            event.preventDefault();
+            const nameInput = document.getElementById('siteName');
+            const urlInput = document.getElementById('siteUrl');
+
+            const newLink = {
+                name: nameInput.value.trim(),
+                url: urlInput.value.trim()
+            };
+
+            searchLinks.push(newLink);
+            localStorage.setItem('searchLinks', JSON.stringify(searchLinks));
+            
+            renderLinks();
+
+            // Limpiar el formulario
+            nameInput.value = '';
+            urlInput.value = '';
+        }
+
+        function deleteLink(index) {
+            searchLinks.splice(index, 1);
+            localStorage.setItem('searchLinks', JSON.stringify(searchLinks));
+            renderLinks();
+        }
+    </script>
+</body>
+</html>

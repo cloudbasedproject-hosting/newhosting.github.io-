@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plataformas de IA Gratuitas</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --accent-color: #38bdf8;
+            --hover-color: #0ea5e9;
+            --modal-overlay: rgba(15, 23, 42, 0.85);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--accent-color);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(56, 189, 248, 0.2);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            color: var(--accent-color);
+            font-size: 1.5rem;
+        }
+
+        .card p {
+            color: #cbd5e1;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .badge {
+            background-color: #059669;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 15px;
+            width: fit-content;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            text-align: center;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-color);
+            color: #0f172a;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--hover-color);
+        }
+
+        .btn-secondary {
+            background-color: #475569;
+            color: var(--text-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: #334155;
+        }
+
+        /* Estilos de la Ventana Modal */
+        .modal {
+            display: none; 
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--modal-overlay);
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+            position: relative;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+            border: 1px solid #334155;
+        }
+
+        .modal.show .modal-content {
+            transform: translateY(0);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .close-btn:hover {
+            color: var(--text-color);
+        }
+
+        #modalTitle {
+            margin-top: 0;
+            color: var(--accent-color);
+            font-size: 1.8rem;
+            border-bottom: 2px solid #334155;
+            padding-bottom: 10px;
+        }
+
+        #modalDescription {
+            color: #cbd5e1;
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-top: 15px;
+            margin-bottom: 25px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Asistentes de IA Gratuitos</h1>
+        <p>Explora y utiliza las mejores herramientas de Inteligencia Artificial disponibles sin costo.</p>
+    </header>
+
+    <div class="container">
+        <!-- Gemini -->
+        <div class="card">
+            <div>
+                <h2>Gemini</h2>
+                <span class="badge">Gratis / Freemium</span>
+                <p>La IA conversacional de Google integrada con su ecosistema. Excelente para redacciÃ³n, anÃ¡lisis de datos y bÃºsquedas en tiempo real.</p>
+            </div>
+            <div class="button-group">
+                <button class="btn btn-secondary" onclick="abrirModal('Gemini', 'Desarrollada por Google, ofrece capacidades multimodales avanzadas. Puede procesar texto, cÃ³digo, audio, imÃ¡genes y videos simultÃ¡neamente, integrÃ¡ndose de forma directa con aplicaciones de productividad como Google Docs, Sheets y Maps para optimizar tus flujos de trabajo diario.')">Detalles</button>
+                <a href="https://gemini.google.com/" target="_blank" class="btn btn-primary">Visitar</a>
+            </div>
+        </div>
+
+        <!-- Copilot -->
+        <div class="card">
+            <div>
+                <h2>Microsoft Copilot</h2>
+                <span class="badge">Gratis / Freemium</span>
+                <p>CompaÃ±ero de IA de Microsoft potenciado por la tecnologÃ­a de OpenAI. Ideal para productividad, generaciÃ³n de imÃ¡genes y bÃºsquedas web.</p>
+            </div>
+            <div class="button-group">
+                <button class="btn btn-secondary" onclick="abrirModal('Microsoft Copilot', 'Integrado de forma nativa en el ecosistema de Windows y Microsoft Edge. Utiliza los modelos avanzados de OpenAI, permitiÃ©ndote generar imÃ¡genes creativas con DALL-E y redactar resÃºmenes, correos electrÃ³nicos o cÃ³digo complejo de manera 100% gratuita.')">Detalles</button>
+                <a href="https://copilot.com/" target="_blank" class="btn btn-primary">Visitar</a>
+            </div>
+        </div>
+
+        <!-- Lovable -->
+        <div class="card">
+            <div>
+                <h2>Lovable</h2>
+                <span class="badge">Prueba Gratis</span>
+                <p>Plataforma avanzada de desarrollo de software con IA (GPT Engineer). Permite crear aplicaciones web completas a partir de texto simple.</p>
+            </div>
+            <div class="button-group">
+                <button class="btn btn-secondary" onclick="abrirModal('Lovable', 'Una revolucionaria herramienta de desarrollo Full-Stack impulsada por Inteligencia Artificial. EstÃ¡ diseÃ±ada para interpretar prompts de texto plano y transformarlos en aplicaciones web interactivas y funcionales, encargÃ¡ndose del diseÃ±o, la programaciÃ³n y el despliegue automÃ¡tico en minutos.')">Detalles</button>
+                <a href="https://lovable.dev" target="_blank" class="btn btn-primary">Visitar</a>
+            </div>
+        </div>
+<!-- Zapia -->
+        <div class="card">
+            <div>
+                <h2>ia-gratis</h2>
+                <span class="badge">Gratis</span>
+                <p>Asistente de IA personal diseÃ±ado especialmente para Chat Busqueda DescriciÃ³n para geerar Imagenes y Describcion para convertir tu idea en un pequeÃ±o video.</p>
+            </div>
+            <div class="button-group">
+                <button class="btn btn-secondary" onclick="abrirModal('ia-gratis', Asistente de IA personal diseÃ±ado especialmente para Chat Busqueda DescriciÃ³n para geerar Imagenes y Describcion para convertir tu idea en un pequeÃ±o video.')">Detalles</button>
+                <a href="https://ia.gratis/" target="_blank" class="btn btn-primary">Visitar</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estructura de la Ventana Modal Integrada -->
+    <div id="miModal" class="modal" onclick="cerrarModalExterno(event)">
+        <div class="modal-content">
+            <span class="close-btn" onclick="cerrarModal()">&times;</span>
+            <h2 id="modalTitle">TÃ­tulo de la IA</h2>
+            <p id="modalDescription">DescripciÃ³n detallada aquÃ­.</p>
+            <button class="btn btn-secondary" style="width: 100%;" onclick="cerrarModal()">Cerrar</button>
+        </div>
+    </div>
+
+    <script>
+        const modal = document.getElementById('miModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalDescription = document.getElementById('modalDescription');
+
+        function abrirModal(nombre, detalle) {
+            modalTitle.innerText = nombre;
+            modalDescription.innerText = detalle;
+            modal.style.display = 'flex';
+            // PequeÃ±o delay para que la transiciÃ³n de CSS funcione correctamente
+            setTimeout(() => {
+                modal.classList.add('show');
+            }, 10);
+        }
+
+        function cerrarModal() {
+            modal.classList.remove('show');

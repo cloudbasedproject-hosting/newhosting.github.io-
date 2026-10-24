@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cronómetro con Registro</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 350px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .display {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #1a73e8;
+            margin-bottom: 25px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .btn-start { background-color: #34a853; color: white; }
+        .btn-start:hover { background-color: #2d8e47; }
+
+        .btn-stop { background-color: #ea4335; color: white; }
+        .btn-stop:hover { background-color: #d33225; }
+
+        .btn-reset { background-color: #fabc05; color: white; }
+        .btn-reset:hover { background-color: #e0a800; }
+
+        button:disabled {
+            background-color: #cccccc;
+            color: #666666;
+            cursor: not-allowed;
+        }
+
+        .records-section {
+            text-align: left;
+            border-top: 2px solid #eee;
+            padding-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .records-section h3 {
+            margin-top: 0;
+            color: #555;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        li {
+            padding: 8px 12px;
+            background-color: #f8f9fa;
+            margin-bottom: 6px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            color: #444;
+            font-size: 0.95rem;
+            font-variant-numeric: tabular-nums;
+        }
+        
+        li span {
+            font-weight: bold;
+            color: #1a73e8;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Cronómetro</h1>
+        <div class="display" id="display">00:00:00.00</div>
+        
+        <div class="buttons">
+            <button class="btn-start" id="startBtn" onclick="start()">Iniciar</button>
+            <button class="btn-stop" id="stopBtn" onclick="stop()" disabled>Detener</button>
+            <button class="btn-reset" id="resetBtn" onclick="reset()">Reiniciar</button>
+        </div>
+
+        <div class="records-section">
+            <h3>Tiempos Registrados</h3>
+            <ul id="recordsList"></ul>
+        </div>
+    </div>
+
+    <script>
+        let startTime = 0;
+        let elapsedTime = 0;
+        let timerInterval;
+        let recordCount = 0;
+
+        const display = document.getElementById('display');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+
+        function formatTime(time) {
+            let diffInHrs = time / 3600000;
+            let hh = Math.floor(diffInHrs);
+
+            let diffInMin = (diffInHrs - hh) * 60;
+            let mm = Math.floor(diffInMin);
+
+            let diffInSec = (diffInMin - mm) * 60;
+            let ss = Math.floor(diffInSec);
+
+            let diffInMs = (diffInSec - ss) * 100;
+            let ms = Math.floor(diffInMs);
+
+            let formattedHH = hh.toString().padStart(2, '0');
+            let formattedMM = mm.toString().padStart(2, '0');
+            let formattedSS = ss.toString().padStart(2, '0');
+            let formattedMS = ms.toString().padStart(2, '0');
+
+            return `${formattedHH}:${formattedMM}:${formattedSS}.${formattedMS}`;
+        }
+
+        function start() {
+            startTime = Date.now() - elapsedTime;
+            timerInterval = setInterval(function printTime() {
+                elapsedTime = Date.now() - startTime;
+                display.innerHTML = formatTime(elapsedTime);
+            }, 10);
+            
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
+        }
+
+        function stop() {
+            clearInterval(timerInterval);
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            
+            // Guardar registro si el tiempo es mayor a cero
+            if (elapsedTime > 0) {
+                saveRecord(formatTime(elapsedTime));
+            }
+        }
+
+        function reset() {
+            clearInterval(timerInterval);
+            elapsedTime = 0;
+            display.innerHTML = "00:00:00.00";
+            
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+        }
+
+        function saveRecord(timeString) {
+            recordCount++;
+            const recordsList = document.getElementById('recordsList');
+            const li = document.createElement('li');
+            
+            li.innerHTML = `Registro #${recordCount} <span>${timeString}</span>`;
+            // Agrega el nuevo tiempo al principio de la lista
+            recordsList.insertBefore(li, recordsList.firstChild); 
+        }
+    </script>
+</body>
+</html>

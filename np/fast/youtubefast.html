@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plataforma Canales FAST</title>
+    <style>
+        /* Estilos Generales estilo Modo Oscuro (Netflix/Pluto TV) */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0b0c10;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        header {
+            background-color: #1f2833;
+            padding: 15px 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            border-bottom: 2px solid #66fcf1;
+            color: #66fcf1;
+        }
+
+        /* Contenedor del Reproductor Principal */
+        .player-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #000;
+            aspect-ratio: 16 / 9;
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.8);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .player-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Contenedor de la Guía de Canales (EPG) */
+        .epg-container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .epg-title {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #c5a059;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        /* Tabla de la Guía */
+        .epg-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #1f2833;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .epg-row {
+            border-bottom: 1px solid #111;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .epg-row:hover {
+            background-color: #2b3a4a;
+        }
+
+        .epg-row.active {
+            background-color: #394a5a;
+            border-left: 5px solid #66fcf1;
+        }
+
+        .channel-info {
+            padding: 20px;
+            font-weight: bold;
+            width: 25%;
+            background-color: #151c24;
+            text-align: center;
+            color: #66fcf1;
+        }
+
+        .program-info {
+            padding: 20px;
+            width: 75%;
+        }
+
+        .program-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .program-time {
+            font-size: 13px;
+            color: #9aa0a6;
+        }
+    </style>
+</head>
+<body>
+
+    <header>📺 miTV - Canales FAST</header>
+
+    <!-- REPRODUCTOR PRINCIPAL -->
+    <div class="player-container">
+        <!-- El id "main-player" permite cambiar el video dinámicamente mediante JavaScript -->
+        <iframe id="main-player" 
+                src="https://www.youtube.com/embed/videoseries?list=PLFUABEBRmO7M" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen>
+        </iframe>
+    </div>
+
+    <!-- GUÍA DE PROGRAMACIÓN (EPG) ABAJO -->
+    <div class="epg-container">
+        <div class="epg-title">Guía de Canales en Vivo</div>
+        <table class="epg-table">
+            
+            <!-- CANAL 1 -->
+            <tr class="epg-row active" onclick="changeChannel('PLFUABEBRmO7M', this)">
+                <td class="channel-info">CANAL 01<br>🎵 Música</td>
+                <td class="program-info">
+                    <div class="program-title">Grandes Éxitos de los 80s y 90s</div>
+                    <div class="program-time">En vivo ahora • 24 Horas Sin Interrupciones</div>
+                </td>
+            </tr>
+
+            <!-- CANAL 2 -->
+            <tr class="epg-row" onclick="changeChannel('PLFUABEBRmO7M&index=2', this)">
+                <td class="channel-info">CANAL 02<br>🌌 Naturaleza</td>
+                <td class="program-info">
+                    <div class="program-title">Paisajes del Mundo en Ultra HD</div>
+                    <div class="program-time">A continuación • Documentales Relajantes</div>
+                </td>
+            </tr>
+
+        </table>
+    </div>
+
+    <!-- SCRIPT INTERACTIVO -->
+    <script>
+        function changeChannel(videoId, rowElement) {
+            // 1. Cambiar la URL del iframe agregando autoplay de forma nativa
+            const player = document.getElementById('main-player');
+            player.src = `https://www.youtube.com/embed/videoseries?list=PLFUABEBRmO7M?autoplay=1&mute=0`;
+
+            // 2. Actualizar visualmente la fila seleccionada en la guía
+            const rows = document.querySelectorAll('.epg-row');
+            rows.forEach(row => row.classList.remove('active'));
+            rowElement.classList.add('active');
+        }
+    </script>
+
+</body>
+</html>
+

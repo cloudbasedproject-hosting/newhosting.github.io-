@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Vista Móvil y Tablet</title>
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --panel-bg: #ffffff;
+            --primary: #007bff;
+            --primary-hover: #0056b3;
+            --text: #333333;
+            --border: #cccccc;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Barra de Control Superior */
+        .control-panel {
+            background-color: var(--panel-bg);
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .url-input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .url-input:focus {
+            border-color: var(--primary);
+        }
+
+        .btn-load {
+            padding: 12px 24px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-load:hover {
+            background-color: var(--primary-hover);
+        }
+
+        /* Área de Dispositivos */
+        .workspace {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 40px;
+            padding: 30px;
+            overflow-x: auto;
+            overflow-y: auto;
+        }
+
+        /* Contenedores de Dispositivos (Efecto Maqueta) */
+        .device-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .device-title {
+            font-weight: bold;
+            font-size: 14px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Mockup de Celular */
+        .mobile-view {
+            width: 375px;
+            height: 667px;
+            border: 12px solid #222;
+            border-radius: 36px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            background: #fff;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Mockup de Tablet */
+        .tablet-view {
+            width: 768px;
+            height: 1024px;
+            border: 16px solid #222;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            background: #fff;
+            overflow: hidden;
+            position: relative;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background-color: #fff;
+        }
+
+        /* Aviso Importante */
+        .security-note {
+            font-size: 11px;
+            color: #777;
+            margin-left: auto;
+            max-width: 300px;
+            text-align: right;
+        }
+
+        /* Responsividad de la propia herramienta */
+        @media (max-width: 768px) {
+            .control-panel {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .security-note {
+                text-align: left;
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="control-panel">
+        <input type="text" id="urlInput" class="url-input" placeholder="Introduce la URL completa (ej: https://example.com)" value="https://example.com">
+        <button onclick="loadWebsites()" class="btn-load">Visualizar</button>
+        <div class="security-note">
+            ⚠️ <strong>Nota:</strong> Algunos sitios web protegen su contenido (X-Frame-Options) e impiden ser mostrados dentro de iframes por seguridad.
+        </div>
+    </div>
+
+    <div class="workspace">
+        
+        <!-- Celular -->
+        <div class="device-container">
+            <div class="device-title">📱 Vista Móvil (375 x 667)</div>
+            <div class="mobile-view">
+                <iframe id="mobileFrame" src="https://example.com"></iframe>
+            </div>
+        </div>
+
+        <!-- Tablet -->
+        <div class="device-container">
+            <div class="device-title">📟 Vista Tablet (768 x 1024)</div>
+            <div class="tablet-view">
+                <iframe id="tabletFrame" src="https://example.com"></iframe>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function loadWebsites() {
+            let url = document.getElementById('urlInput').value.trim();
+            
+            if (url === "") {
+                alert("Por favor, introduce una URL.");
+                return;
+            }
+
+            // Forzar prefijo http/https si el usuario lo olvida
+            if (!/^https?:\/\//i.test(url)) {
+                url = 'https://' + url;
+                document.getElementById('urlInput').value = url;
+            }
+
+            // Cargar la URL en ambos marcos
+            document.getElementById('mobileFrame').src = url;
+            document.getElementById('tabletFrame').src = url;
+        }
+
+        // Permitir cargar presionando la tecla Enter
+        document.getElementById('urlInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                loadWebsites();
+            }
+        });
+    </script>
+
+</body>
+</html>
