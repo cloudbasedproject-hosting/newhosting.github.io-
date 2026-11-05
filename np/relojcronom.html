@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reloj y Cronómetro</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: #f8fafc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            flex-direction: column;
+            gap: 2rem;
+            padding: 1rem;
+        }
+
+        .container {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        h2 {
+            font-size: 1.25rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #94a3b8;
+            margin-bottom: 1rem;
+        }
+
+        .display {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: #38bdf8;
+            font-variant-numeric: tabular-nums;
+            text-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
+            margin-bottom: 0.5rem;
+        }
+
+        .ms {
+            font-size: 2rem;
+            color: #7dd3fc;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        button {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #fff;
+        }
+
+        .btn-start { background-color: #22c55e; }
+        .btn-start:hover { background-color: #16a34a; }
+
+        .btn-pause { background-color: #eab308; }
+        .btn-pause:hover { background-color: #ca8a04; }
+
+        .btn-reset { background-color: #ef4444; }
+        .btn-reset:hover { background-color: #dc2626; }
+
+        button:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SECCIÓN DEL RELOJ -->
+    <div class="container">
+        <h2>Reloj Digital</h2>
+        <div id="clock-display" class="display">00:00:00</div>
+    </div>
+
+    <!-- SECCIÓN DEL CRONÓMETRO -->
+    <div class="container">
+        <h2>Cronómetro</h2>
+        <div class="display">
+            <span id="chrono-time">00:00:00</span><span id="chrono-ms" class="ms">.00</span>
+        </div>
+        <div class="buttons">
+            <button class="btn-start" onclick="startChronometer()">Iniciar</button>
+            <button class="btn-pause" onclick="pauseChronometer()">Pausar</button>
+            <button class="btn-reset" onclick="resetChronometer()">Reiniciar</button>
+        </div>
+    </div>
+
+    <script>
+        // --- LÓGICA DEL RELOJ ---
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            
+            document.getElementById('clock-display').textContent = `${hours}:${minutes}:${seconds}`;
+        }
+        // Actualiza el reloj cada segundo inmediatamente
+        setInterval(updateClock, 1000);
+        updateClock();
+
+
+        // --- LÓGICA DEL CRONÓMETRO ---
+        let startTime = 0;
+        let elapsedTime = 0;
+        let timerInterval;
+
+        function startChronometer() {
+            if (!timerInterval) {
+                // Ajusta el tiempo de inicio restando el tiempo acumulado previamente
+                startTime = Date.now() - elapsedTime;
+                timerInterval = setInterval(updateChronometer, 10);
+            }
+        }
+
+        function pauseChronometer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        function resetChronometer() {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            elapsedTime = 0;
+            document.getElementById('chrono-time').textContent = "00:00:00";
+            document.getElementById('chrono-ms').textContent = ".00";
+        }
+
+        function updateChronometer() {
+            elapsedTime = Date.now() - startTime;
+
+            // Cálculos de tiempo basándonos en milisegundos reales
+            let totalSeconds = Math.floor(elapsedTime / 1000);
+            let totalMinutes = Math.floor(totalSeconds / 60);
+            let totalHours = Math.floor(totalMinutes / 60);
+
+            let ms = Math.floor((elapsedTime % 1000) / 10);
+            let seconds = totalSeconds % 60;
+            let minutes = totalMinutes % 60;
+            let hours = totalHours;
+
+            // Formatear texto con ceros a la izquierda si es necesario
+            let hoursStr = String(hours).padStart(2, '0');
+            let minutesStr = String(minutes).padStart(2, '0');
+            let secondsStr = String(seconds).padStart(2, '0');
+            let msStr = String(ms).padStart(2, '0');
+
+            document.getElementById('chrono-time').textContent = `${hoursStr}:${minutesStr}:${secondsStr}`;
+            document.getElementById('chrono-ms').textContent = `.${msStr}`;
+        }
+    </script>
+</body>
+</html>
