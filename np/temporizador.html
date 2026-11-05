@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temporizador Interactivo Moderno</title>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-color: #3b82f6;
+            --accent-success: #10b981;
+            --accent-danger: #ef4444;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 2rem;
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .presets {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        @media (min-width: 600px) {
+            .presets {
+                grid-template-columns: repeat(6, 1fr);
+            }
+        }
+
+        .btn-preset {
+            background: #334155;
+            color: var(--text-main);
+            border: 2px solid transparent;
+            padding: 12px 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+        }
+
+        .btn-preset:hover {
+            background: #475569;
+        }
+
+        .btn-preset.active {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: var(--accent-color);
+            color: #60a5fa;
+        }
+
+        .timer-display {
+            font-size: 5.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin: 20px 0;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -2px;
+            color: var(--text-main);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 35px;
+        }
+
+        .btn-ctrl {
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+        }
+
+        .btn-ctrl:hover {
+            opacity: 0.9;
+        }
+
+        .btn-start { background-color: var(--accent-success); color: white; }
+        .btn-pause { background-color: #eab308; color: white; }
+        .btn-reset-timer { background-color: var(--accent-danger); color: white; }
+
+        .log-section {
+            border-top: 1px solid #334155;
+            padding-top: 25px;
+        }
+
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .log-header h2 {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+        }
+
+        .btn-excel {
+            background-color: #16a34a;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .table-container {
+            max-height: 250px;
+            overflow-y: auto;
+            border: 1px solid #334155;
+            border-radius: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #334155;
+        }
+
+        th {
+            background-color: #1e293b;
+            color: var(--text-muted);
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .empty-log {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Temporizador Interactivo</h1>
+    
+    <div class="presets">
+        <button class="btn-preset" data-mins="10">10 Min</button>
+        <button class="btn-preset" data-mins="20">20 Min</button>
+        <button class="btn-preset text-active" data-mins="30">30 Min</button>
+        <button class="btn-preset" data-mins="40">40 Min</button>
+        <button class="btn-preset" data-mins="50">50 Min</button>
+        <button class="btn-preset" data-mins="60">1 Hora</button>
+    </div>
+
+    <div class="timer-display" id="display">30:00</div>
+
+    <div class="controls">
+        <button class="btn-ctrl btn-start" id="startBtn">Iniciar</button>
+        <button class="btn-ctrl btn-pause" id="pauseBtn" style="display: none;">Pausar</button>
+        <button class="btn-ctrl btn-reset-timer" id="resetBtn">Reiniciar</button>
+    </div>
+
+    <div class="log-section">
+        <div class="log-header">
+            <h2>Historial de Registros</h2>
+            <button class="btn-excel" id="exportBtn">📊 Exportar a Excel</button>
+        </div>
+        <div class="table-container">
+            <table id="logTable">
+                <thead>
+                    <tr>
+                        <th>Fecha y Hora</th>
+                        <th>Configuración Inicial</th>
+                        <th>Tiempo Transcurrido</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody id="logBody">
+                    <tr>
+                        <td colspan="4" class="empty-log">No hay registros guardados en esta sesión.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    let timer = null;
+    let initialMinutes = 30;
+    let totalSeconds = 30 * 60;
+    let currentSeconds = totalSeconds;
+    let isRunning = false;
+    let startTimeLocal = null;
+
+    const display = document.getElementById('display');
+    const startBtn = document.getElementById('startBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const exportBtn = document.getElementById('exportBtn');
+    const logBody = document.getElementById('logBody');
+    const presetButtons = document.querySelectorAll('.btn-preset');
+
+    const logs = [];
+
+    // Marcar el botón predeterminado (30 min)
+    presetButtons.forEach(btn => {
+        if(btn.dataset.mins == "30") btn.classList.add('active');
+        btn.addEventListener('click', () => {
+            if (isRunning) {
+                if(!confirm("¿Deseas cambiar el temporizador? El conteo actual se perderá.")) return;
+                stopTimer();
+            }
+            presetButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            initialMinutes = parseInt(btn.dataset.mins);
+            totalSeconds = initialMinutes * 60;
+            currentSeconds = totalSeconds;
+            updateDisplay();
+        });
+    });
+
+    function updateDisplay() {
+        const mins = Math.floor(currentSeconds / 60);
+        const secs = currentSeconds % 60;
+        display.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    function startTimer() {
+        if (!isRunning) {
+            isRunning = true;
+            startTimeLocal = new Date().toLocaleString();
+            startBtn.style.display = 'none';
+            pauseBtn.style.display = 'inline-block';
+            
+            timer = setInterval(() => {
+                if (currentSeconds > 0) {
+                    currentSeconds--;
+                    updateDisplay();
+                    
+                    // Si llega a cero de forma automática
+                    if (currentSeconds === 0) {
+                        clearInterval(timer);
+                        isRunning = false;
+                        addLog(startTimeLocal, initialMinutes, totalSeconds, "Completado");
+                        alert("¡Tiempo cumplido!");
+                        resetTimerState();
+                    }
+                }
+            }, 1000);
+        }
+    }
+
+    function stopTimer() {
+        if (isRunning) {
+            clearInterval(timer);
+            isRunning = false;
+            startBtn.style.display = 'inline-block';
+            pauseBtn.style.display = 'none';
+            
+            const elapsed = totalSeconds - currentSeconds;
+            if (elapsed > 0) {
+                addLog(startTimeLocal, initialMinutes, elapsed, "Interrumpido / Pausado");
+            }
+        }
+    }
+
+    function resetTimerState() {
+        clearInterval(timer);
+        isRunning = false;
+        currentSeconds = totalSeconds;
+        startBtn.style.display = 'inline-block';
+        pauseBtn.style.display = 'none';
+        updateDisplay();
+    }
+
+    function addLog(dateStr, preset, elapsedSecs, status) {
+        const elapsedMins = Math.floor(elapsedSecs / 60);
+        const elapsedRestSecs = elapsedSecs % 60;
+        const elapsedStr = `${elapsedMins}m ${elapsedRestSecs}s`;
+        
+        const presetStr = preset === 60 ? "1 Hora" : `${preset} Min`;
+
+        const logEntry = {
+            fecha: dateStr,
+            config: presetStr,
+            transcurrido: elapsedStr,
+            estado: status
+        };
+
+        logs.push(logEntry);
+        renderLogs();
+    }
+
+    function renderLogs() {
+        if (logs.length === 0) {
+            logBody.innerHTML = `<tr><td colspan="4" class="empty-log">No hay registros guardados en esta sesión.</td></tr>`;
+            return;
+        }
+
+        logBody.innerHTML = logs.map(log => `
+            <tr>
+                <td>${log.fecha}</td>
+                <td>${log.config}</td>
+                <td>${log.transcurrido}</td>
+                <td><span style="color: ${log.estado === 'Completado' ? 'var(--accent-success)' : '#eab308'}">${log.estado}</span></td>
+            </tr>
+        `).join('');
+    }
+
+    function exportToExcel() {
+        if (logs.length === 0) {
+            alert("No hay datos para exportar.");
+            return;
+        }
+
+        // Formatear datos para XLSX
+        const dataToExport = logs.map(l => ({
+            "Fecha y Hora": l.fecha,
+            "Configuración Inicial": l.config,
+            "Tiempo Transcurrido": l.transcurrido,
+            "Estado": l.estado
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Historial");
+
+        // Descargar archivo Excel
+        XLSX.writeFile(workbook, "Historial_Temporizador.xlsx");
+    }
+
+    startBtn.addEventListener('click', startTimer);
+    pauseBtn.addEventListener('click', stopTimer);
+    resetBtn.addEventListener('click', () => {
+        if (isRunning && currentSeconds < totalSeconds) {
+            const elapsed = totalSeconds - currentSeconds;
+            addLog(startTimeLocal, initialMinutes, elapsed, "Reiniciado");
+        }
+        resetTimerState();
+    });
+    exportBtn.addEventListener('click', exportToExcel);
+</script>
+
+</body>
+</html>
